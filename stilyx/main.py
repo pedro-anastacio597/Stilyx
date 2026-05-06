@@ -81,3 +81,9 @@ def listarPasta(idUsuario):
         else:
             continue
     return lista
+@app.delete("/usuario", status_code=204)
+def removerUsuario(idusuario):
+    for u in enumerate(Usuario_bd):
+        if u.id == idusuario:
+            Usuario_bd.pop(u)
+    raise HTTPException(status_code=404, detail="Usuario não encontrada")
