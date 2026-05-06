@@ -51,7 +51,6 @@ def criarUsuaruio(dados: usuarioentrada):
     u= usuario(**dados.model_dump())
     Usuario_bd.append(u)
     return u
-
 @app.post("/postagem",response_model=imagem, status_code=201)
 def publicar(titulo:str,legenda: str, img: UploadFile = File(...)):
     tipo = os.path.splitext(img.filename)[1]
@@ -62,6 +61,13 @@ def publicar(titulo:str,legenda: str, img: UploadFile = File(...)):
     novo = imagem(titulo,legenda,url=Url,autor="123")
     imagens_db.append(novo)
     return novo
+
+@app.delete("/Postagem", status_code=204)
+def deletarimagem(idimagem):
+    for i in enumerate(imagens_db):
+        if i.id == idimagem:
+            imagens_db.pop(i)
+    raise HTTPException(status_code=404, detail="Imagem não encontrada")
 
 app.post("/Postagem", response_model=imagem, status_code=201)
 def Curtir(IdUsuario=str):
