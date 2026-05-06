@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException,UploadFile,File
-from pydantic import BaseModel,Field,HttpUrl
+from pydantic import BaseModel,Field,HttpUrl,EmailStr
 from fastapi.staticfiles import StaticFiles
 from typing import List
 import uuid
@@ -11,7 +11,7 @@ app= FastAPI(title="Stilyx", version="0.1")
 
 class usuarioentrada(BaseModel):
     Nome: str
-    Emai: str
+    Emai: EmailStr
     Senha: str
     DataNascimento: date
     Genero: str
@@ -29,14 +29,15 @@ class imagem(criarimagem):
     autor: str
     datacriacao: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     url: HttpUrl
+    Curtidas=List[str]=[]
 
-class criarPasta(BaseModel):
+class Pastaentrada(BaseModel):
     nome: str
     descricao: str
     estado: str
-    imagens: List[type]=[]
+    imagens: List[str]=[]
 
-class pasta(criarPasta):
+class pasta(Pastaentrada):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     idUsuario: str
     
@@ -51,7 +52,7 @@ def criarUsuaruio(dados: usuarioentrada):
     Usuario_bd.append(u)
     return u
 
-@app.post("/postagem",response_model=criarimagem, status_code=201)
+@app.post("/postagem",response_model=imagem, status_code=201)
 def publicar(titulo:str,legenda: str, img: UploadFile = File(...)):
     tipo = os.path.splitext(img.filename)[1]
     link = f"{uuid.uuid4()}{tipo}"
@@ -62,21 +63,20 @@ def publicar(titulo:str,legenda: str, img: UploadFile = File(...)):
     imagens_db.append(novo)
     return novo
 
+app.post("/Postagem", response_model=imagem, status_code=201)
+def Curtir(IdUsuario=str):
+    imagem.Curtidas.append(IdUsuario)
+
 @app.post("/Pasta", response_model=pasta, status_code=201)
-def criarPaasta(nome=str,descricao=str,estado=bool,imagem=None):
-    modo= True
-    if estado==True:
-        modo="privado"
-    else:
-        modo="Publico"
-    p= pasta(nome,descricao,modo,imagem=None,usuario=str)
+def Pastaentrada(dados: Pastaentrada):
+    p= pasta(**dados)
     pasta_db.append(p)
     return p
 @app.get("/Pasta", response_model=pasta, status_code=200)
 def listarPasta(idUsuario):
     lista=[type]
     for p in pasta_db:
-        if p ==pasta.idUsuario:
+        if p.idUsuario ==idUsuario:
             lista.append(p)
         else:
             continue
