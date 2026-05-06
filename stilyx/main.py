@@ -8,10 +8,12 @@ import shutil
 import os
 
 app= FastAPI(title="Stilyx", version="0.1")
+os.makedirs("imagens", exist_ok=True)
+app.mount("/imagens", StaticFiles(directory="."), name="imagens")
 
 class usuarioentrada(BaseModel):
     Nome: str
-    Emai: EmailStr
+    Email: EmailStr
     Senha: str
     DataNascimento: date
     Genero: str
@@ -29,13 +31,13 @@ class imagem(criarimagem):
     autor: str
     datacriacao: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     url: HttpUrl
-    Curtidas=List[str]=[]
+    Curtidas=List[str]= Field(default_factory=list)
 
 class Pastaentrada(BaseModel):
     nome: str
     descricao: str
     estado: str
-    imagens: List[str]=[]
+    imagens: List[str]=Field(default_factory=list)
 
 class pasta(Pastaentrada):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
@@ -55,32 +57,38 @@ def criarUsuaruio(dados: usuarioentrada):
 def publicar(titulo:str,legenda: str, img: UploadFile = File(...)):
     tipo = os.path.splitext(img.filename)[1]
     link = f"{uuid.uuid4()}{tipo}"
-    with open(link, "wb") as local:
+    caminho = f"imagens/{link}"
+    with open(caminho, "wb") as local:
         local.write(img.file.read())
     Url = f"http://localhost:8000/imagens/{link}"
-    novo = imagem(titulo,legenda,url=Url,autor="123")
+    novo = imagem(titulo=titulo,legenda=legenda,url=Url,autor="123")
     imagens_db.append(novo)
     return novo
 
 @app.delete("/Postagem", status_code=204)
 def deletarimagem(idimagem):
-    for i in enumerate(imagens_db):
+    for i in imagens_db:
         if i.id == idimagem:
             imagens_db.pop(i)
     raise HTTPException(status_code=404, detail="Imagem não encontrada")
 
-app.post("/Postagem", response_model=imagem, status_code=201)
-def Curtir(IdUsuario=str):
-    imagem.Curtidas.append(IdUsuario)
+@app.post("/Postagem", response_model=imagem, status_code=201)
+def Curtir(IdUsuario=str, idimagem=str):
+    for i in imagens_db:
+        if i.id == idimagem:
+            imagem.Curtidas.append(IdUsuario)
+            return i
+        raise HTTPException(status_code=404, detail="Imagem não encontrada")
+
 
 @app.post("/Pasta", response_model=pasta, status_code=201)
 def Pastaentrada(dados: Pastaentrada):
-    p= pasta(**dados)
+    p= pasta(**dados.model_dump())
     pasta_db.append(p)
     return p
-@app.get("/Pasta", response_model=pasta, status_code=200)
+@app.get("/Pasta", response_model=List[pasta], status_code=200)
 def listarPasta(idUsuario):
-    lista=[type]
+    lista=[]
     for p in pasta_db:
         if p.idUsuario ==idUsuario:
             lista.append(p)
@@ -89,7 +97,8 @@ def listarPasta(idUsuario):
     return lista
 @app.delete("/usuario", status_code=204)
 def removerUsuario(idusuario):
-    for u in enumerate(Usuario_bd):
+    for u in Usuario_bd:
         if u.id == idusuario:
             Usuario_bd.pop(u)
     raise HTTPException(status_code=404, detail="Usuario não encontrada")
+
