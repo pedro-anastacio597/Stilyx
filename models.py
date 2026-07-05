@@ -78,10 +78,6 @@ class post(Base):
         cascade= "all, delete"
     )
 
-    comentario= relationship(
-        "comentario",
-        cascade= "all, delete"
-    )
 
     def __init__(self,imagem,titulo,descricao,id_usuario):
         self.imagem= imagem
@@ -160,6 +156,7 @@ class pasta(Base):
     id_usuario= Column("id_usuario", Integer, ForeignKey("usuario.id"))
     estado= Column("Estado", String, nullable=False)
     post= relationship("pasta_post", cascade="all, delete")
+    usuario= relationship("usuario", back_populates= "pasta")
 
     def __init__(self,nome,descricao, id_usuario, estado):
         self.nome= nome
