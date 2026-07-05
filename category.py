@@ -20,6 +20,7 @@ def definir_categorias():
         "Automóveis",
         "Celebridade",
         "Ciência",
+        "Esporte",
     ]
 
     session = next(sessao())

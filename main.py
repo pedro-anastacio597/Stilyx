@@ -1,7 +1,13 @@
 from fastapi import FastAPI, HTTPException,APIRouter
 from category import definir_categorias
+from fastapi.security import OAuth2PasswordBearer
+from dotenv import load_dotenv
+from passlib.context import CryptContext
+from fastapi.security import OAuth2PasswordBearer 
 
 app = FastAPI(title="Stylix0.1")
+
+
 from user_router import user_router
 from post_router import post_router
 from past_router import past_router

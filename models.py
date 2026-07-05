@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, String, Integer, ForeignKey, Date, Table
+from sqlalchemy import create_engine, Column, String, Integer, ForeignKey, Date, Table, Boolean
 from sqlalchemy.orm import declarative_base, relationship
 from datetime import date
 
@@ -13,19 +13,28 @@ class usuario(Base):
     nome= Column("nome", String, unique=True, nullable=False)
     email=Column("email", String, nullable=False)
     senha= Column("senha", String, nullable=False)
+    admin= Column("administrador", Boolean, default=False)
     foto=Column("foto", String)
     bio= Column("bio", String)
 
-    def __init__(self,nome,email,senha,foto=None ,bio=None):
+    def __init__(self, nome, email, senha ,admin=False ,foto=None ,bio=None):
         self.nome=nome
         self.email=email
+        self.admin= admin
         self.senha=senha
         self.foto=foto
         self.bio= bio
 
     posts = relationship(
         "post",
-        back_populates="usuario"
+        back_populates="usuario",
+        cascade="all, delete"
+    )
+
+    pasta= relationship(
+        "pasta",
+        back_populates= "usuario",
+        cascade= "all, delete"
     )
 
 
@@ -38,16 +47,19 @@ class post(Base):
     descricao= Column("descricao", String, nullable=False)
     usuario_id= Column("usuario_id", Integer, ForeignKey("usuario.id"))
     data_criacao= Column("data_criacao", Date, default=date.today)
+    pasta= relationship("pasta_post", cascade="all, delete")
 
     tags = relationship(
         "tag",
         secondary="post_tag",
-        back_populates="posts"
+        back_populates="posts",
+        cascade= "all, delete"
     )
 
     comentarios = relationship(
         "comentario",
-        back_populates="post"
+        back_populates="post",
+        cascade="all, delete"
     )
 
     categorias = relationship(
@@ -59,6 +71,16 @@ class post(Base):
     usuario = relationship(
         "usuario",
         back_populates="posts"
+    )
+
+    curtida= relationship(
+        "curtida",
+        cascade= "all, delete"
+    )
+
+    comentario= relationship(
+        "comentario",
+        cascade= "all, delete"
     )
 
     def __init__(self,imagem,titulo,descricao,id_usuario):
@@ -137,6 +159,7 @@ class pasta(Base):
     descricao= Column("descricao", String)
     id_usuario= Column("id_usuario", Integer, ForeignKey("usuario.id"))
     estado= Column("Estado", String, nullable=False)
+    post= relationship("pasta_post", cascade="all, delete")
 
     def __init__(self,nome,descricao, id_usuario, estado):
         self.nome= nome
