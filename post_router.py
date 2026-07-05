@@ -13,7 +13,6 @@ post_router= APIRouter(tags=["post"], dependencies=[Depends(verificar_token)])
 
 
 class PostEntrada(BaseModel):
-    id_usuario: int
     imagem: str
     titulo: str
     descricao: str
@@ -22,31 +21,31 @@ class PostEntrada(BaseModel):
 
 class Comentario(BaseModel):
     texto: str
-    id_usuario: int
-
-class Curtida(BaseModel):
-    id_usuario: int
+    id_post: int
 
 
-    @post_router.post("/posts", status_code=201)
-    async def criar_post(dados: PostEntrada, user: usuario= Depends(verificar_token),session= Depends(sessao)):
+
+
+
+@post_router.post("/posts", status_code=201)
+async def criar_post(dados: PostEntrada, user: usuario= Depends(verificar_token),session= Depends(sessao)):
+
+    categorias=[]
+    if not dados.imagem:
+        raise HTTPException(status_code=404, detail="Selecione uma imagem")
+
+    if not verificar_usuario(dados.id_usuario, user, session):
+        raise HTTPException(status_code= 404, detail= "Usuario não existe")
+    
         
-        if not dados.imagem:
-            raise HTTPException(status_code=404, detail="Selecione uma imagem")
- 
-        if not verificar_usuario(dados.id_usuario, user, session):
-            raise HTTPException(status_code= 404, detail= "Usuario não existe")
-         
-        if not dados.categoria:
-            pass
-
-        elif not verificar_categoria(dados.categoria, session):
+    if dados.categoria:
+        if not verificar_categoria(dados.categoria, session):
             raise HTTPException(status_code=404, detail="Categorias inexistentes")
-        
+    
         categorias = session.query(categoria).filter(categoria.nome.in_(dados.categoria)).all()
-        
-        Tag_post=[]
-
+    
+    Tag_post=[]
+    if dados.tag:
         for nome_tag in dados.tag:
             t = session.query(tag).filter(tag.nome == nome_tag).first()
 
@@ -57,16 +56,16 @@ class Curtida(BaseModel):
                 
             Tag_post.append(t)
 
-        p= post(dados.imagem, dados.titulo, dados.descricao, dados.id_usuario)
-        
-        p.categorias.extend(categorias)
-        p.tags.extend(Tag_post)
+    p= post(dados.imagem, dados.titulo, dados.descricao, user.id)
+    
+    p.categorias.extend(categorias)
+    p.tags.extend(Tag_post)
 
-        session.add(p)
-        session.commit()
-        session.refresh(p)
+    session.add(p)
+    session.commit()
+    session.refresh(p)
 
-        return p
+    return p
 
 
 @post_router.get("/posts", status_code=200)
@@ -105,11 +104,8 @@ def comentar(id_post: int, dados: Comentario, session=Depends(sessao), user: usu
 
     if not verificar_post(id_post,session):
         raise HTTPException(404, "post não existe")
-    
-    if not verificar_usuario(dados.id_usuario, user, session):
-        raise HTTPException(status_code=404, detail="Usuario não existe")
-    
-    c= comentario(texto= dados.texto, id_usuario= dados.id_usuario, id_post= id_post)
+        
+    c= comentario(texto=dados.texto, id_usuario=user.id, id_post=dados.id_post)
 
     session.add(c)
     session.commit()
