@@ -75,23 +75,20 @@ async def listar_posts(session= Depends(sessao)):
     return posts
 
 @post_router.post("/posts/{id_post}/curtir", status_code=200)
-async def curtir(id_usuario:int, id_post: int, user: usuario= Depends(verificar_token), session= Depends(sessao)):    
+async def curtir( id_post: int, user: usuario= Depends(verificar_token), session= Depends(sessao)):    
     
     if  verificar_curtida(id_post, user.id, session):
         raise HTTPException(status_code=404, detail="Curtida já existe")
     
     if not verificar_post(id_post, session):
         raise HTTPException(status_code=404, detail="Essa postagem não existe")
-    else:
-        if not verificar_usuario(user.id, user, session):
-            raise HTTPException(status_code=404, detail="Usuario não existe")
-        else:
-            c= curtida(id_post= id_post, id_usuario= id_usuario)
+    
+    c= curtida(id_post= id_post, id_usuario= user.id)
 
-            session.add(c)
-            session.commit()
-            session.refresh(c)
-            return c
+    session.add(c)
+    session.commit()
+    session.refresh(c)
+    return c
 
 
 # comentar
@@ -110,14 +107,14 @@ def comentar(id_post: int, dados: Comentario, session=Depends(sessao), user: usu
     session.add(c)
     session.commit()
     session.refresh(c)
-
+ 
     return c
 
 
 @post_router.post("/buscar", status_code=200)
 async def buscar(q: str, session= Depends(sessao)):
 
-    posts = (session.query(post).join(post.categorias).join(post.tags).filter(or_(categoria.nome.ilike(f"%{q}%"), tag.nome.ilike(f"%{q}%"))).distinct().all())
+    posts = (session.query(post).join(post.categorias).join(post.tags).filter(or_(post.descricao.ilike(f"%{q}%"), post.titulo.ilike(f"%{q}%") ,categoria.nome.ilike(f"%{q}%"), tag.nome.ilike(f"%{q}%"))).distinct().all())
     return posts
 
 @post_router.patch("/post/{id_post}/atualizarpost", status_code=200)
