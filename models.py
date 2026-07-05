@@ -181,12 +181,14 @@ class denuncia(Base):
 
     id= Column("id", Integer, primary_key=True, autoincrement=True)
     id_usuario= Column("id_usuario", Integer, ForeignKey("usuario.id"))
+    id_post= Column("id_post", Integer, ForeignKey("post.id"))
     id_alvo= Column("id_alvo", Integer, ForeignKey("usuario.id"))
     motivo= Column("motivo", String, nullable=False)
     data_criacao= Column("data_criacao", Date, default=date.today)
 
-    def __init__(self, id_usuario, id_alvo, motivo):
+    def __init__(self, id_usuario,id_post, id_alvo, motivo):
         self.id_usuario= id_usuario
+        self.id_post= id_post
         self.id_alvo= id_alvo
         self.motivo= motivo
 

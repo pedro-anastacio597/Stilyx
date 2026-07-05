@@ -5,9 +5,8 @@ from datetime import datetime
 from dependecis import sessao
 from models import post, usuario, categoria, pasta, denuncia, curtida
     
-def verificar_usuario(id_usuario: int, user:usuario, session):
-    if user.id != id_usuario:
-        raise HTTPException(status_code=400, detail="Ação bloqueada")
+def verificar_usuario(id_usuario: int, session):
+    user= session.query(usuario).filter(usuario.id == id_usuario).first()
     
     return user
     

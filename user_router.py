@@ -94,10 +94,8 @@ async def login(dadoos_formulario:OAuth2PasswordRequestForm = Depends() , sessio
     }
 
 
-@user_router.patch("/usuario/{id}/atualizarperfil", status_code=200)
-async def editar_perfil(id_usuario: int, bio:str, foto:str, session= Depends(sessao), user: usuario = Depends(verificar_token)):
-
-    verificar_usuario(id_usuario, user, session)
+@user_router.patch("/usuario/atualizarperfil", status_code=200)
+async def editar_perfil(bio:str, foto:str, session= Depends(sessao), user: usuario = Depends(verificar_token)):
     
     user.bio=bio
     user.foto= foto
