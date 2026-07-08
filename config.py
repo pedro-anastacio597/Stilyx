@@ -13,7 +13,7 @@ bcrypt_context = CryptContext(
     schemes=["bcrypt"],
     deprecated="auto"
 )
-
+ 
 OAuth2_schema = OAuth2PasswordBearer(
     tokenUrl="/login"
 )

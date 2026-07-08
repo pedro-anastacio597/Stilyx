@@ -1,5 +1,5 @@
 from dependecis import sessao
-from models import categoria
+from database import Categoria
 
 def definir_categorias():
 
@@ -27,12 +27,12 @@ def definir_categorias():
 
     try:
         for nome in Categorias:
-            existe = session.query(categoria).filter(
-                categoria.nome == nome
+            existe = session.query(Categoria).filter(
+                Categoria.nome == nome
             ).first()
 
             if not existe:
-                session.add(categoria(nome=nome))
+                session.add(Categoria(nome=nome))
 
         session.commit()
 

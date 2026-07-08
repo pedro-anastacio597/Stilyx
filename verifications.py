@@ -1,42 +1,40 @@
 from fastapi import FastAPI, HTTPException,APIRouter, Depends
 from pydantic import BaseModel, EmailStr
-from typing import List
-from datetime import datetime
 from dependecis import sessao
-from models import post, usuario, categoria, pasta, denuncia, curtida
+from database import Post, Usuario, Categoria, Pasta, Denuncia, Curtida
     
 def verificar_usuario(id_usuario: int, session):
-    user= session.query(usuario).filter(usuario.id == id_usuario).first()
+    user= session.query(Usuario).filter(Usuario.id == id_usuario).first()
     
     return user
     
 def verificar_post(id_post: int, session):
-    Post= session.query(post).filter(post.id == id_post).first()
+    post= session.query(Post).filter(Post.id == id_post).first()
 
-    return Post
+    return post
     
 def verificar_categoria(nome_categoria: list, session):
-    Categoria= session.query(categoria).filter(categoria.nome.in_(nome_categoria)).all()
+    categoria= session.query(Categoria).filter(Categoria.nome.in_(nome_categoria)).all()
     
 
-    return len(Categoria) == len(nome_categoria)
+    return len(categoria) == len(nome_categoria)
 
 def verificar_pasta(id_pasta: int, session):
-    Pasta= session.query(pasta).filter(pasta.id == id_pasta).first()
+    pasta= session.query(Pasta).filter(Pasta.id == id_pasta).first()
 
-    return Pasta
+    return pasta
 
 def verificar_denuncia(id_denuncia: int, session):
-    Denuncia= session.query(denuncia).filter(denuncia.id == id_denuncia).first()
+    denuncia= session.query(Denuncia).filter(Denuncia.id == id_denuncia).first()
 
-    return Denuncia
+    return denuncia
 
 def verificar_curtida(id_post, id_usuario, session):
-    Curti= session.query(curtida).filter(curtida.id_post == id_post, curtida.id_usuario == id_usuario)
+    Curti= session.query(Curtida).filter(Curtida.id_post == id_post, Curtida.id_usuario == id_usuario).first()
 
     return Curti
 
-def verificar_excluir(id_usuario: int, user: usuario, session):
+def verificar_excluir(id_usuario: int, user: Usuario, session):
     
     if user.admin == False and user.id != id_usuario:
         raise HTTPException(status_code=400, detail="Não é possivél realizar está ação")

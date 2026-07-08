@@ -1,20 +1,15 @@
 from fastapi import FastAPI, HTTPException,APIRouter, Depends
 from pydantic import BaseModel
 from dependecis import sessao, verificar_token
-from models import post, usuario, denuncia
+from database import Post, Usuario, Denuncia
 from verifications import verificar_usuario, verificar_denuncia, verificar_excluir, verificar_post
+from models import DenunciaEntrada
 
 complaint_router= APIRouter(tags=["complaint"], dependencies=[Depends(verificar_token)])
 
 
-
-class DenunciaEntrada(BaseModel):
-    id_post: int | None = None
-    id_alvo: int 
-    motivo: str
-
 @complaint_router.post("/denuncia", status_code=201)
-def denunciar(dados: DenunciaEntrada, session= Depends(sessao), user: usuario= Depends(verificar_token)):
+def denunciar(dados: DenunciaEntrada, session= Depends(sessao), user: Usuario= Depends(verificar_token)):
 
 
     u= verificar_usuario(dados.id_alvo, session)
@@ -23,7 +18,7 @@ def denunciar(dados: DenunciaEntrada, session= Depends(sessao), user: usuario= D
         raise HTTPException(status_code=404, detail="Usuário denunciado não existe")
 
     
-    d = denuncia(user.id,**dados.model_dump())
+    d = Denuncia(user.id,**dados.model_dump())
 
     session.add(d)
     session.commit()
@@ -32,7 +27,7 @@ def denunciar(dados: DenunciaEntrada, session= Depends(sessao), user: usuario= D
 
 
 @complaint_router.delete("/denuncia", status_code=200)
-def apagardenuncia(id_denuncia: str, user: usuario= Depends(verificar_token), session= Depends(sessao)):
+def apagardenuncia(id_denuncia: str, user: Usuario= Depends(verificar_token), session= Depends(sessao)):
    
    d= verificar_denuncia(id_denuncia, session)
    if not d:

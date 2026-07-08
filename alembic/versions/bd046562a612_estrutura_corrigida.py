@@ -1,8 +1,8 @@
-"""estrutura atual
+"""estrutura corrigida
 
-Revision ID: 587e2bc430f9
+Revision ID: bd046562a612
 Revises: 
-Create Date: 2026-07-05 16:03:29.182525
+Create Date: 2026-07-06 16:08:46.462955
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '587e2bc430f9'
+revision: str = 'bd046562a612'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -37,7 +37,7 @@ def upgrade() -> None:
     sa.Column('nome', sa.String(), nullable=False),
     sa.Column('email', sa.String(), nullable=False),
     sa.Column('senha', sa.String(), nullable=False),
-    sa.Column('administrador', sa.Boolean(), nullable=True),
+    sa.Column('admin', sa.Boolean(), nullable=True),
     sa.Column('foto', sa.String(), nullable=True),
     sa.Column('bio', sa.String(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
@@ -47,8 +47,8 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('nome', sa.String(), nullable=False),
     sa.Column('descricao', sa.String(), nullable=True),
+    sa.Column('estado', sa.Boolean(), nullable=False),
     sa.Column('id_usuario', sa.Integer(), nullable=True),
-    sa.Column('Estado', sa.String(), nullable=False),
     sa.ForeignKeyConstraint(['id_usuario'], ['usuario.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -57,9 +57,9 @@ def upgrade() -> None:
     sa.Column('imagem', sa.String(), nullable=False),
     sa.Column('titulo', sa.String(), nullable=False),
     sa.Column('descricao', sa.String(), nullable=False),
-    sa.Column('usuario_id', sa.Integer(), nullable=True),
+    sa.Column('id_usuario', sa.Integer(), nullable=True),
     sa.Column('data_criacao', sa.Date(), nullable=True),
-    sa.ForeignKeyConstraint(['usuario_id'], ['usuario.id'], ),
+    sa.ForeignKeyConstraint(['id_usuario'], ['usuario.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('comentario',
@@ -100,16 +100,20 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('post_categoria',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('id_post', sa.Integer(), nullable=True),
     sa.Column('id_categoria', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['id_categoria'], ['categoria.id'], ),
-    sa.ForeignKeyConstraint(['id_post'], ['post.id'], )
+    sa.ForeignKeyConstraint(['id_post'], ['post.id'], ),
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('post_tag',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('id_post', sa.Integer(), nullable=True),
     sa.Column('id_tag', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['id_post'], ['post.id'], ),
-    sa.ForeignKeyConstraint(['id_tag'], ['tag.id'], )
+    sa.ForeignKeyConstraint(['id_tag'], ['tag.id'], ),
+    sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###
 
