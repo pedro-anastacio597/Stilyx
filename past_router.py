@@ -52,4 +52,4 @@ async def deletar_pasta(id_pasta, user: Usuario = Depends(verificar_token), sess
     session.delete(Pasta)
     session.commit()
     
-    return Pasta
+    return {"mensagem": "Pasta removido com sucesso"}

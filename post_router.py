@@ -36,7 +36,9 @@ async def criar_post(dados: PostEntrada, user: Usuario= Depends(verificar_token)
             Tag_post.append(t)
 
     p= Post(dados.imagem, dados.titulo, dados.descricao, user.id)
-    
+    session.add(p)
+    session.flush()
+
     if dados.tag:
         for tag in Tag_post:
             pt=PostTag(p.id, tag.id)
@@ -50,7 +52,7 @@ async def criar_post(dados: PostEntrada, user: Usuario= Depends(verificar_token)
             session.add(pc)
 
 
-    session.add(p)
+    
     session.commit()
     session.refresh(p)
 
@@ -122,18 +124,18 @@ async def editrarpost(id_post: int, descricao: str, titulo: str, session= Depend
     
     return  Post
 
-@post_router.delete("/posts/{id_post}", status_code=204)
+@post_router.delete("/posts/{id_post}", status_code=200)
 async def remover_post(id_post: int, session=Depends(sessao), user: Usuario = Depends(verificar_token)):
 
-    Post = verificar_post(id_post, session)
+    post = verificar_post(id_post, session)
 
-    if not Post:
+    if not post:
         raise HTTPException(status_code=404, detail="post não existe")
     
-    verificar_excluir(Post.usuario_id, user, session)
+    verificar_excluir(post.id_usuario, user, session)
 
 
-    session.delete(Post)
+    session.delete(post)
     session.commit()
 
-    return Post
+    return {"mensagem": "Post removido com sucesso"}

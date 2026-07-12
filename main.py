@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException,APIRouter
+from fastapi import FastAPI, APIRouter
 from category import definir_categorias
 
 

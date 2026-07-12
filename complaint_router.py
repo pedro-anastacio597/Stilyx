@@ -38,4 +38,4 @@ def apagardenuncia(id_denuncia: str, user: Usuario= Depends(verificar_token), se
    session.delete(d)
    session.commit()
 
-   return {"msg": "usuario deletado"}
+   return {"msg": "denuncia deletado"}

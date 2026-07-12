@@ -1,11 +1,10 @@
 from fastapi import FastAPI, HTTPException,APIRouter, Depends
-from pydantic import BaseModel, EmailStr
 from datetime import timedelta, datetime, timezone
 from dependecis import sessao, verificar_token
 from config import bcrypt_context, ALGORITHM, ACESS_TOKEN_EXPIREM,SECRET_KEY
 from jose import jwt, JWSError
 from fastapi.security import OAuth2PasswordRequestForm
-from verifications import verificar_excluir, verificar_usuario
+from verifications import verificar_excluir
 from datetime import datetime, timedelta, timezone
 from jose import jwt
 from models import UsuarioEntrada
@@ -96,13 +95,11 @@ async def login_refresh(dados_formulario: OAuth2PasswordRequestForm = Depends(),
         raise HTTPException(401, "Senha inválida")
 
     access_token = criar_token(
-        user.id,
-        tipo="access"
+        user.id
     )
 
     refresh_token = criar_token(
         user.id,
-        tipo="refresh",
         data_exp=timedelta(days=7)
     )
 
