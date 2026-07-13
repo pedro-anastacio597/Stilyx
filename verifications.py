@@ -33,7 +33,7 @@ def verificar_curtida(id_post, id_usuario, session):
     Curti= session.query(Curtida).filter(Curtida.id_post == id_post, Curtida.id_usuario == id_usuario).first()
 
     return Curti
-
+  
 def verificar_excluir(id_usuario: int, user: Usuario, session):
     
     if user.admin == False and user.id != id_usuario:

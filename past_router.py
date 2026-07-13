@@ -23,12 +23,16 @@ def criar_pasta(dados: PastaEntrada, session= Depends(sessao), user: Usuario= De
 @past_router.post("/pasta/{id_pasta}/add/{id_post}", status_code=200)
 def adicionar_post(id_pasta: int, id_post:int, session= Depends(sessao), user: Usuario= Depends(verificar_token)):
 
-    if not verificar_pasta(id_pasta, session):
+    pa = verificar_pasta(id_pasta, session)
+
+    if not pa:
         raise HTTPException(status_code=404, detail="pasta não existe")
+    
+    if pa.id_usuario != user.id:
+        raise HTTPException(status_code=400, detail="ação não é permitida")
     
     if not verificar_post(id_post, session):
         raise HTTPException(status_code=404, detail="post não existe")
-    
 
     p= PastaPost(id_pasta=id_pasta, id_post=id_post)
 

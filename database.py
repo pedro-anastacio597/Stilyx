@@ -213,7 +213,7 @@ class PostCategoria(Base):
 
     def __init__(self,id_post, id_categoria):
         self.id_post= id_post
-        self.id_pasta= id_categoria
+        self.id_categoria= id_categoria
 
 
 class PostTag(Base):
@@ -228,4 +228,4 @@ class PostTag(Base):
 
     def __init__(self,id_post, id_tag):
         self.id_post= id_post
-        self.id_pasta= id_tag
+        self.id_tag= id_tag
