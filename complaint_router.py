@@ -7,9 +7,17 @@ from models import DenunciaEntrada
 
 complaint_router= APIRouter(tags=["complaint"], dependencies=[Depends(verificar_token)])
 
+@complaint_router.get ("/denuncia", status_code=200)
+async def listardenuncias(session= Depends(sessao), user: Usuario= Depends(verificar_token)):
+    if user.admin == False:
+        raise HTTPException(status_code=400, detail="acao não autorizda")
+    
+    denuncias= session.query(Denuncia).all()
+
+    return denuncias
 
 @complaint_router.post("/denuncia", status_code=201)
-def denunciar(dados: DenunciaEntrada, session= Depends(sessao), user: Usuario= Depends(verificar_token)):
+async def denunciar(dados: DenunciaEntrada, session= Depends(sessao), user: Usuario= Depends(verificar_token)):
 
 
     u= verificar_usuario(dados.id_alvo, session)
@@ -27,7 +35,7 @@ def denunciar(dados: DenunciaEntrada, session= Depends(sessao), user: Usuario= D
 
 
 @complaint_router.delete("/denuncia", status_code=200)
-def apagardenuncia(id_denuncia: str, user: Usuario= Depends(verificar_token), session= Depends(sessao)):
+async def apagardenuncia(id_denuncia: str, user: Usuario= Depends(verificar_token), session= Depends(sessao)):
    
    d= verificar_denuncia(id_denuncia, session)
    if not d:

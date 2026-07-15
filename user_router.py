@@ -138,9 +138,9 @@ async def removerusuario(id_usuario:int, user: Usuario = Depends(verificar_token
 @user_router.get("/refresh")
 async def use_refresh_token(token):
 
-    acess_token = criar_token(token)
+    refresh_token = criar_token(token, data_exp=timedelta(days=7))
 
     return {
-            "token de acesso": acess_token,
+            "token de acesso": refresh_token,
             "tipo do token": "Bearrer"
            }

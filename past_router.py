@@ -7,9 +7,14 @@ from models import PastaEntrada
 
 past_router= APIRouter(tags=["past"], dependencies=[Depends(verificar_token)])
 
+@past_router.get("/pasta", status_code=200)
+async def listarminhaspastas(session = Depends(sessao), user: Usuario= Depends(verificar_token)):
+    pasts= session.query(Pasta).filter(Pasta.id_usuario == user.id).all()
+
+    return pasts
 
 @past_router.post("/pasta", status_code=201)
-def criar_pasta(dados: PastaEntrada, session= Depends(sessao), user: Usuario= Depends(verificar_token)):
+async def criar_pasta(dados: PastaEntrada, session= Depends(sessao), user: Usuario= Depends(verificar_token)):
     
     p= Pasta(nome=dados.nome, descricao= dados.descricao, estado= dados.estado, id_usuario= user.id)
 
@@ -21,7 +26,7 @@ def criar_pasta(dados: PastaEntrada, session= Depends(sessao), user: Usuario= De
 
 
 @past_router.post("/pasta/{id_pasta}/add/{id_post}", status_code=200)
-def adicionar_post(id_pasta: int, id_post:int, session= Depends(sessao), user: Usuario= Depends(verificar_token)):
+async def adicionar_post(id_pasta: int, id_post:int, session= Depends(sessao), user: Usuario= Depends(verificar_token)):
 
     pa = verificar_pasta(id_pasta, session)
 
